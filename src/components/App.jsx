@@ -102,15 +102,8 @@ export class App extends Component {
   };
 
   render() {
-    const {
-      query,
-      images,
-      page,
-      loadMore,
-      modalIsOpen,
-      largeImageURL,
-      loading,
-    } = this.state;
+    const { images, loadMore, modalIsOpen, largeImageURL, loading } =
+      this.state;
     return (
       <Layout>
         <Searchbar onSubmit={this.handleSubmit} />
