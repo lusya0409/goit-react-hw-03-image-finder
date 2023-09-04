@@ -12,8 +12,9 @@ const theme = {
     orange: '#f39b53;',
     gray: '#cccccc',
     lightBlue: '#e4f5f7',
-    blue: '#6d9cf1',
+    blue: '#3f51b5',
     violet: '#e26df1',
+    grayOverlay: '#000c',
   },
   radii: {
     sm: '4px',
@@ -22,7 +23,7 @@ const theme = {
   },
   spasing: value => `${value * 4}px`,
   shadow:
-    '0px 2px 1px 0px rgba(46, 47, 66, 0.08), 0px 1px 1px 0px rgba(46, 47, 66, 0.16), 0px 1px 6px 0px rgba(46, 47, 66, 0.08)',
+    '0px 2px 4px -1px rgba(0, 0, 0, 0.2),0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12)',
 };
 ReactDOM.createRoot(document.getElementById('root')).render(
   <ThemeProvider theme={theme}>

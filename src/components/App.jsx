@@ -1,18 +1,27 @@
 import { GlobalStyle } from './GlobalStyle';
 import { Layout } from './Layout';
 import React, { Component } from 'react';
-import api from 'api/api';
+import { fetchArticlesWithQuery } from 'api/api';
 import toast, { Toaster } from 'react-hot-toast';
 import { Searchbar } from './Searchbar/Searchbar';
 import { Button } from './Button/Button';
+import { ImageGallery } from './ImageGallery/ImageGallery';
+import { Modal } from './Modal/Modal';
+import { Loader } from './Loader/Loader';
 
 export class App extends Component {
   state = {
-    query: '',
+    query: 'dog',
+    loading: false,
+    error: false,
     images: [],
     page: 1,
+    loadMore: false,
+    uniqueId: 0,
+    modalIsOpen: false,
+    largeImageURL: '',
   };
-  //обнуляем интерфейс. Манипулируем стєйтом
+
   handleSubmit = evt => {
     evt.preventDefault();
 
@@ -20,72 +29,102 @@ export class App extends Component {
       query: evt.target.elements.query.value,
       images: [],
       page: 1,
+      loadMore: false,
+      uniqueId: Date.now(),
     });
   };
 
-  //HTTP request - делаем запрос //реагируе на манипляции стейта//єффект
-  componentDidUpdate(prevProps, prevState) {
+  async componentDidMount() {
+    const savedSearchQuery = localStorage.getItem('search-query');
+    if (savedSearchQuery !== null) {
+      this.setState({
+        query: savedSearchQuery,
+      });
+    }
+    if (!this.state.query) return;
+  }
+
+  async componentDidUpdate(prevProps, prevState) {
+    const { query, page, uniqueId } = this.state;
+
     if (
-      prevState.query !== this.state.query ||
-      prevState.page !== this.state.page
+      prevState.query !== query ||
+      prevState.page !== page ||
+      prevState.uniqueId !== uniqueId
     ) {
-      //HTTP request - делаем запрос
+      try {
+        this.setState({ loading: true });
+        const searchQuery = await fetchArticlesWithQuery(query, page);
+        if (page > 1) {
+          if (!searchQuery.length) {
+            this.setState({
+              loadMore: false,
+            });
+            toast.error('No more images!');
+            return;
+          }
+          this.setState({ images: [...prevState.images, ...searchQuery] });
+        } else {
+          if (!searchQuery.length) {
+            toast.error('Nothing found!');
+            return;
+          }
+          this.setState({ images: searchQuery });
+          this.setState({ loadMore: true });
+        }
+      } catch (error) {
+        this.setState({ error: true });
+      } finally {
+        this.setState({ loading: false });
+      }
     }
   }
 
-  //увеличиваем стр.
   handleLoadMore = () => {
     this.setState(prevState => ({
-      page: prevState + 1,
+      page: prevState.page + 1,
     }));
+  };
+  openModal = largeImageURL => {
+    this.closeModal();
+    this.setState({ largeImageURL, modalIsOpen: true });
+    document.addEventListener('keydown', this.onEscKeyPress);
+  };
+  closeModal = () => {
+    this.setState({ modalIsOpen: false });
+    document.removeEventListener('keydown', this.onEscKeyPress);
+  };
+  onEscKeyPress = evt => {
+    const ESC_KEY_CODE = 'Escape';
+    if (evt.code === ESC_KEY_CODE) {
+      this.closeModal();
+    }
   };
 
   render() {
+    const {
+      query,
+      images,
+      page,
+      loadMore,
+      modalIsOpen,
+      largeImageURL,
+      loading,
+    } = this.state;
     return (
       <Layout>
         <Searchbar onSubmit={this.handleSubmit} />
-        <form>
-          <input type="text" name="query"></input>
-          <button type="submit">Search</button>
-        </form>
-        {this.state.images.length > 0 && <ImageGallery>Gallery</ImageGallery>}
-        <Button onHandleLoadMore={this.handleLoadMore} />
+        {images.length > 0 && (
+          <ImageGallery images={images} openModal={this.openModal} />
+        )}
+        {modalIsOpen && (
+          <Modal largeImageURL={largeImageURL} closeModal={this.closeModal} />
+        )}
+        {loadMore && <Button onHandleLoadMore={this.handleLoadMore} />}
+        {loading && <Loader />}
         <GlobalStyle />
         <Toaster position="top-right" reverseOrder={false} />
       </Layout>
     );
   }
 }
-
-// class App extends Component {
-//   state = {
-//     articles: [],
-//     isLoading: false,
-//     error: null,
-//   };
-
-// async componentDidMount() {
-//     this.setState({ isLoading: true });
-
-//     try {
-//       const articles = api.fetchArticlesWithQuery("react");
-//       this.setState({ articles });
-//     } catch (error) {
-//       this.setState({ error });
-//     } finally {
-//       this.setState({ isLoading: false });
-//     }
-//   }
-
-//   render() {
-//     const { articles, isLoading, error } = this.state;
-
-//     return (
-//       <div>
-//         {error && <p>Whoops, something went wrong: {error.message}</p>}
-//         {isLoading && <p>Loading...</p>}
-//         {articles.length > 0 && <ArticleList articles={articles} />}
-//       </div>
-//     );
-//   }
-// }

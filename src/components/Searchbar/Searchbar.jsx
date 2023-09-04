@@ -1,18 +1,30 @@
-export const Searchbar = onSubmit => {
+import {
+  SearchbarHeader,
+  SearchForm,
+  SearchFormButton,
+  SearchFormButtonLabel,
+  SearchFormInput,
+} from './Searchbar.styled';
+import { BsSearch } from 'react-icons/bs';
+
+export const Searchbar = ({ onSubmit }) => {
   return (
-    <header>
-      <form onSubmit={onSubmit}>
-        <button type="submit">
-          <span>Search</span>
-        </button>
-        <input
+    <SearchbarHeader>
+      <SearchForm onSubmit={onSubmit}>
+        <SearchFormButton type="submit">
+          <BsSearch size={28} />
+
+          <SearchFormButtonLabel>Search</SearchFormButtonLabel>
+        </SearchFormButton>
+        <SearchFormInput
           type="text"
           name="query"
-          autocomplete="off"
-          autofocus
+          autoComplete="off"
+          autoFocus
           placeholder="Search images and photos"
+          required
         />
-      </form>
-    </header>
+      </SearchForm>
+    </SearchbarHeader>
   );
 };

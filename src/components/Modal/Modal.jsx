@@ -1,47 +1,15 @@
-// import * as basicLightbox from 'basiclightbox';
+import { Overlay, ModalWrap } from './Modal.styled';
 
-// const instance = basicLightbox.create(`
-//     <img src="assets/images/image.png" width="800" height="600">
-// `);
-
-// instance.show();
-
-// export const Modal = () => {
-//   return (
-//     <div class="overlay">
-//       <div class="modal">
-//         <img src="" alt="" />
-//       </div>
-//     </div>
-//   );
-// };
-
-import React from 'react';
-import ReactDOM from 'react-dom';
-import Modal from 'react-modal';
-
-const customStyles = {
-  content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-  },
-};
-const [modalIsOpen, setIsOpen] = React.useState(false);
-
-export const Modal = () => {
+export const Modal = ({ largeImageURL, closeModal }) => {
   return (
-    <div class="overlay">
-      <div
-        isOpen={modalIsOpen}
-        onRequestClose={closeModal}
-        style={customStyles}
+    <Overlay onClick={closeModal}>
+      <ModalWrap
+        onClick={e => {
+          e.stopPropagation();
+        }}
       >
-        <img src="" alt="" />
-      </div>
-    </div>
+        <img src={largeImageURL} alt={largeImageURL} />
+      </ModalWrap>
+    </Overlay>
   );
 };

@@ -144,6 +144,13 @@ img {
 }
 
 .ImageGalleryItem-image {
+  display: block;
+  /* min-width: 100%; */
+  min-height: 100%;
+  object-fit: cover;
+  /* height: auto; */
+  width: 100%;
+
   width: 100%;
   height: 260px;
   object-fit: cover;
