@@ -62,8 +62,7 @@ export const SearchFormInput = styled.input`
   font-size: 20px;
   border: none;
   outline: none;
-  padding-right: ${({ theme }) => theme.spasing(1)};
-  padding-left: ${({ theme }) => theme.spasing(1)};
+  padding: ${({ theme }) => theme.spasing(2)};
 
   &:placeholder {
     font: inherit;
