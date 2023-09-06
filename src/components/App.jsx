@@ -54,23 +54,23 @@ export class App extends Component {
     ) {
       try {
         this.setState({ loading: true });
-        const searchQuery = await fetchArticlesWithQuery(query, page);
+        const { hits, totalHits } = await fetchArticlesWithQuery(query, page);
+
         if (page > 1) {
-          if (!searchQuery.length) {
-            this.setState({
-              loadMore: false,
-            });
-            toast.error('No more images!');
-            return;
-          }
-          this.setState({ images: [...prevState.images, ...searchQuery] });
+          this.setState({ images: [...prevState.images, ...hits] });
         } else {
-          if (!searchQuery.length) {
+          if (!hits.length) {
             toast.error('Nothing found!');
             return;
           }
-          this.setState({ images: searchQuery });
+          this.setState({ images: hits });
           this.setState({ loadMore: true });
+        }
+        if (!hits.length || page >= Math.ceil(totalHits / 12)) {
+          this.setState({
+            loadMore: false,
+          });
+          toast.error('No more images!');
         }
       } catch (error) {
         this.setState({ error: true });
@@ -86,13 +86,14 @@ export class App extends Component {
     }));
   };
   openModal = largeImageURL => {
-    this.closeModal();
     this.setState({ largeImageURL, modalIsOpen: true });
     document.addEventListener('keydown', this.onEscKeyPress);
   };
-  closeModal = () => {
-    this.setState({ modalIsOpen: false });
-    document.removeEventListener('keydown', this.onEscKeyPress);
+  closeModal = evt => {
+    if (evt.target === evt.currentTarget) {
+      this.setState({ modalIsOpen: false });
+      document.removeEventListener('keydown', this.onEscKeyPress);
+    }
   };
   onEscKeyPress = evt => {
     const ESC_KEY_CODE = 'Escape';
